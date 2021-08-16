@@ -1,5 +1,6 @@
 #!/bin/bash
 # Giovix92 was here, 15/04/2021, 13:56 GMT+1
+# JMPFBMX was here, 01/07/2021, 23:11 GMT+1
 # Version: 1.1
 a=()
 mainpath="$(pwd)"
@@ -82,7 +83,7 @@ push_od() {
 
 trigger() {
     echo "Triggering ota_scripts"
-    git clone https://github.com/RevengeOS-Devices/ota_scripts.git $ota_scripts
+    git clone git@github.com:RevengeOS-Devices/ota_scripts.git $ota_scripts
     cd $ota_scripts
     echo "$(date)" > file && git add . && git commit -m "trigger"
     git push git@github.com:RevengeOS-Devices/ota_scripts.git HEAD:master
@@ -143,7 +144,7 @@ if [ -d "$devices_dir" ]; then
     rm -rf $devices_dir
 fi
 
-git clone https://github.com/RevengeOS-Devices/official_devices.git $devices_dir
+git clone git@github.com:RevengeOS-Devices/official_devices.git $devices_dir
 if [ -d "$devices_dir/$target_device" ]; then
     mv $(pwd)/device.json $devices_dir/$target_device
     mv $(pwd)/changelog.txt $devices_dir/$target_device
