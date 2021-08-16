@@ -76,7 +76,7 @@ push_od() {
     echo "Pushing to Official devices"
     cd $devices_dir
     git add $target_device && git commit -m "Update $target_device"
-    git push
+    git push git@github.com:RevengeOS-Devices/official_devices.git HEAD:master
     cd $mainpath
     rm -rf $devices_dir
 }
@@ -86,7 +86,7 @@ trigger() {
     git clone git@github.com:RevengeOS-Devices/ota_scripts.git $ota_scripts
     cd $ota_scripts
     echo "$(date)" > file && git add . && git commit -m "trigger"
-    git push
+    git push git@github.com:RevengeOS-Devices/ota_scripts.git HEAD:master
     cd $mainpath
     rm -rf $ota_scripts
 }
