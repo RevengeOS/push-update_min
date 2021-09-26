@@ -13,6 +13,12 @@ checkchangelog() {
         echo "Aborting..."
         exit
     else
+        BULLET_FOUND=$(grep -E '^-|^•' "$(pwd)/changelog.txt"|wc -l)
+        if [ $BULLET_FOUND -ne 0 ]; then
+            echo "Please remove any bullet symbols from the changelog.txt!"
+            echo "Aborting..."
+            exit
+        fi
         return 0
     fi
 }
