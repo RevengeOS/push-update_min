@@ -89,7 +89,7 @@ trigger() {
     cd $ota_scripts
     git fetch git@github.com:RevengeOS-Devices/ota_scripts.git
     git reset --hard FETCH_HEAD
-    echo "$(date)" > file && git add file && git commit -m "trigger"
+    echo "$(LANG=C TZ=UTC date)" > file && git add file && git commit -m "trigger"
     git push git@github.com:RevengeOS-Devices/ota_scripts.git HEAD:master
     cd $mainpath
 }
