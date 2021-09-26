@@ -105,7 +105,7 @@ fi
 if checkupload; then
     zipname=$(ls -t RevengeOS*${target_device}*.zip)
 else
-    read -p 'Enter the zip filename here: ' zipname
+    read -p 'Enter the zip filename found on ROS server here: ' zipname
     echo "Your file zip will be now downloaded from ROS server. Please, be patient."
     wget -q --show-progress http://files.revengeos.com/${target_device}/${zipname}
 fi
