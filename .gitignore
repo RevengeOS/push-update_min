@@ -1,1 +1,6 @@
+official_devices/
+ota_scripts/
+
 push_config.conf
+*.txt
+*.zip

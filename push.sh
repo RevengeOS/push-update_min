@@ -13,6 +13,12 @@ checkchangelog() {
         echo "Aborting..."
         exit
     else
+        BULLET_FOUND=$(grep -E '^-|^•' "$(pwd)/changelog.txt"|wc -l)
+        if [ $BULLET_FOUND -ne 0 ]; then
+            echo "Please remove any bullet symbols from the changelog.txt!"
+            echo "Aborting..."
+            exit
+        fi
         return 0
     fi
 }
@@ -78,17 +84,20 @@ push_od() {
     git add $target_device && git commit -m "Update $target_device"
     git push git@github.com:RevengeOS-Devices/official_devices.git HEAD:master
     cd $mainpath
-    rm -rf $devices_dir
 }
 
 trigger() {
     echo "Triggering ota_scripts"
-    git clone git@github.com:RevengeOS-Devices/ota_scripts.git $ota_scripts
+    if [ ! -d "$ota_scripts/.git" ]; then
+        rm -rf $ota_scripts
+        git clone git@github.com:RevengeOS-Devices/ota_scripts.git $ota_scripts
+    fi
     cd $ota_scripts
-    echo "$(date)" > file && git add . && git commit -m "trigger"
+    git fetch git@github.com:RevengeOS-Devices/ota_scripts.git
+    git reset --hard FETCH_HEAD
+    echo "$(LANG=C TZ=UTC date)" > file && git add file && git commit -m "trigger"
     git push git@github.com:RevengeOS-Devices/ota_scripts.git HEAD:master
     cd $mainpath
-    rm -rf $ota_scripts
 }
 
 checkchangelog
@@ -102,7 +111,7 @@ fi
 if checkupload; then
     zipname=$(ls -t RevengeOS*${target_device}*.zip)
 else
-    read -p 'Enter the zip filename here: ' zipname
+    read -p 'Enter the zip filename found on ROS server here: ' zipname
     echo "Your file zip will be now downloaded from ROS server. Please, be patient."
     wget -q --show-progress http://files.revengeos.com/${target_device}/${zipname}
 fi
@@ -140,19 +149,22 @@ esac
 
 echo "Generating json"
 python3 $(pwd)/tools/generatejson.py $target_device $zipname $version $size $md5
-if [ -d "$devices_dir" ]; then
+
+if [ ! -d "$devices_dir/.git" ]; then
     rm -rf $devices_dir
+    git clone git@github.com:RevengeOS-Devices/official_devices.git $devices_dir
 fi
 
-git clone git@github.com:RevengeOS-Devices/official_devices.git $devices_dir
-if [ -d "$devices_dir/$target_device" ]; then
-    mv $(pwd)/device.json $devices_dir/$target_device
-    mv $(pwd)/changelog.txt $devices_dir/$target_device
-else
-    mkdir $devices_dir/$target_device
-    mv $(pwd)/device.json $devices_dir/$target_device
-    mv $(pwd)/changelog.txt $devices_dir/$target_device
-fi
+cd $devices_dir
+git fetch git@github.com:RevengeOS-Devices/official_devices.git
+git reset --hard FETCH_HEAD
+cd $mainpath
+
+rm -rf $devices_dir/$target_device
+mkdir $devices_dir/$target_device
+
+mv $(pwd)/device.json $devices_dir/$target_device
+mv $(pwd)/changelog.txt $devices_dir/$target_device
 
 if [ -e "$(pwd)/notes.txt" ]; then
 	echo "Notes found! Adding 'em to the Telegram's post."
